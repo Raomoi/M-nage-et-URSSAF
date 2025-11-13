@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Maison Moisan – Ménages & URSSAF</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <!-- iOS support -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Ménages & URSSAF" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <style>
+    :root {
+      --color-accent: #ac7942;
+      --color-bg: #ffffff;
+      --color-text: #231f20;
+      --color-muted: #f5f5f5;
+      --color-border: #dddddd;
+      --radius: 12px;
+      --shadow-soft: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--color-bg);
+      color: var(--color-text);
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-bg);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header img.logo {
+      height: 40px;
+      width: auto;
+      margin-right: 0.75rem;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+
+    header .titles {
+      display: flex;
+      flex-direction: column;
+    }
+
+    header .app-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    header .app-subtitle {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    main {
+      padding: 1rem;
+      max-width: 1080px;
+      margin: 0 auto 2rem;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--color-border);
+      padding-bottom: 0.5rem;
+      overflow-x: auto;
+    }
+
+    .tabs button {
+      border: none;
+      background: transparent;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      color: var(--color-text);
+      opacity: 0.7;
+    }
+
+    .tabs button.active {
+      background: var(--color-accent);
+      color: #ffffff;
+      opacity: 1;
+    }
+
+    .pill-tabs {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .pill-tabs button {
+      border: none;
+      background: var(--color-muted);
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      color: var(--color-text);
+      opacity: 0.9;
+    }
+
+    .pill-tabs button.active {
+      background: var(--color-accent);
+      color: #ffffff;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 0.9rem 1rem;
+      margin-bottom: 0.9rem;
+      border: 1px solid #f0f0f0;
+    }
+
+    .card h2 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .card small {
+      font-size: 0.75rem;
+      opacity: 0.7;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 0.75rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    table th,
+    table td {
+      padding: 0.35rem 0.4rem;
+      text-align: left;
+    }
+
+    table thead {
+      background: var(--color-muted);
+    }
+
+    table tbody tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    table tfoot td {
+      font-weight: 600;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      border-radius: 999px;
+      padding: 0.15rem 0.55rem;
+      font-size: 0.75rem;
+      background: var(--color-muted);
+    }
+
+    .badge.accent {
+      background: rgba(172, 121, 66, 0.1);
+      color: var(--color-accent);
+    }
+
+    .input-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .input-row label {
+      font-size: 0.85rem;
+      min-width: 150px;
+    }
+
+    .input-row input,
+    .input-row select {
+      padding: 0.3rem 0.4rem;
+      border-radius: 6px;
+      border: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      min-width: 100px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 0.35rem 0.8rem;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-primary {
+      background: var(--color-accent);
+      color: #ffffff;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .btn-sm {
+      padding: 0.2rem 0.6rem;
+      font-size: 0.8rem;
+    }
+
+    .section-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .muted {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .highlight-number {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .highlight-label {
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+
+    .highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.6rem;
+      margin-top: 0.3rem;
+    }
+
+    .highlight-card {
+      background: var(--color-muted);
+      border-radius: 10px;
+      padding: 0.4rem 0.6rem;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      margin-top: 0.4rem;
+    }
+
+    .inline {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      margin-top: 0.3rem;
+    }
+
+    .status.ok {
+      color: #2e7d32;
+    }
+
+    .status.error {
+      color: #c62828;
+    }
+
+    .status.info {
+      color: #555;
+    }
+
+    .mt-05 { margin-top: 0.5rem; }
+    .mt-1 { margin-top: 1rem; }
+    .mb-05 { margin-bottom: 0.5rem; }
+
+    @media (max-width: 600px) {
+      header {
+        align-items: flex-start;
+      }
+      header img.logo {
+        height: 32px;
+      }
+      .top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="logo-maisonmoisan.jpg" alt="Maison Moisan" class="logo" />
+    <div class="titles">
+      <div class="app-title">Maison Moisan – Ménages & URSSAF</div>
+      <div class="app-subtitle">Grand Casimir & Petit Prince</div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Onglets principaux -->
+    <div class="tabs">
+      <button id="tab-months" class="active">Mois</button>
+      <button id="tab-quarters">Trimestres</button>
+      <button id="tab-settings">Paramètres</button>
+    </div>
+
+    <!-- Bandeau supérieur (année + infos gel) -->
+    <div class="top-bar">
+      <div class="inline">
+        <span class="section-title">Année</span>
+        <select id="year-select"></select>
+        <span id="year-status" class="badge"></span>
+      </div>
+      <div>
+        <button class="btn btn-outline btn-sm" id="freeze-year-btn">Geler l’année</button>
+      </div>
+    </div>
+
+    <!-- Vue Mois -->
+    <section id="view-months">
+      <div class="pill-tabs" id="month-tabs"></div>
+
+      <div class="card">
+        <h2 id="month-title">Mois</h2>
+        <small id="month-subtitle"></small>
+
+        <div class="mt-1 grid-2">
+          <div>
+            <h3>Détail par appartement</h3>
+            <div id="month-apartments-table"></div>
+          </div>
+          <div>
+            <h3>Totaux du mois</h3>
+            <div class="highlights" id="month-summary"></div>
+
+            <div class="switch-row">
+              <input type="checkbox" id="month-paid-checkbox" />
+              <label for="month-paid-checkbox">Marquer ce mois comme payé</label>
+            </div>
+            <div class="input-row">
+              <label for="month-paid-date">Date de paiement</label>
+              <input type="date" id="month-paid-date" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vue Trimestres -->
+    <section id="view-quarters" style="display:none;">
+      <div class="pill-tabs" id="quarter-tabs"></div>
+
+      <div class="card">
+        <h2 id="quarter-title">Trimestre</h2>
+        <small id="quarter-subtitle"></small>
+
+        <div class="mt-1">
+          <h3>Détail du trimestre par mois & appartement</h3>
+          <div id="quarter-detail-table"></div>
+        </div>
+
+        <div class="mt-1 grid-2">
+          <div>
+            <h3>Synthèse trimestre</h3>
+            <div class="highlights" id="quarter-summary"></div>
+          </div>
+          <div>
+            <h3>Déclaration URSSAF</h3>
+            <div id="quarter-urssaf"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vue Paramètres -->
+    <section id="view-settings" style="display:none;">
+      <div class="card">
+        <h2>Source des données</h2>
+        <div class="input-row">
+          <label for="api-url">URL API (Google Sheets)</label>
+          <input type="text" id="api-url" placeholder="https://script.google.com/macros/s/.../exec" />
+        </div>
+        <p class="muted">
+          Cette URL doit renvoyer un JSON contenant les données mensuelles (par ex. via un script Google Apps Script).
+          L’application appellera cette URL avec un paramètre <code>?year=2025</code>.
+        </p>
+        <button class="btn btn-outline btn-sm" id="test-api-btn">Tester la connexion</button>
+        <div id="api-status" class="status info">Aucune connexion testée.</div>
+      </div>
+
+      <div class="card">
+        <h2>Gestion des années</h2>
+        <p class="muted">
+          L’année active est celle sélectionnée en haut. Vous pouvez geler une année pour conserver un snapshot
+          même si le Google Sheets est ensuite archivé ou modifié.
+        </p>
+        <button class="btn btn-primary btn-sm" id="freeze-year-btn-settings">Geler l’année active</button>
+        <div id="freeze-status" class="status info mt-05"></div>
+      </div>
+
+      <div class="card">
+        <h2>Appartements</h2>
+        <p class="muted mb-05">
+          Vous pouvez ajuster ici les paramètres des appartements. Les cellules indiquent où lire le nombre de ménages
+          dans chaque feuille mensuelle du Google Sheets.
+        </p>
+        <div id="apartments-settings"></div>
+      </div>
+
+      <div class="card">
+        <h2>Taux & URSSAF</h2>
+        <div class="input-row">
+          <label for="hourly-rate">Taux horaire (€ / h)</label>
+          <input type="number" step="0.01" id="hourly-rate" />
+        </div>
+        <div class="input-row">
+          <label for="urssaf-total-rate">Taux URSSAF total (%)</label>
+          <input type="number" step="0.1" id="urssaf-total-rate" />
+        </div>
+        <div class="input-row">
+          <label for="urssaf-aziza-rate">Taux payé par Aziza (%)</label>
+          <input type="number" step="0.1" id="urssaf-aziza-rate" />
+        </div>
+        <p class="muted">
+          Votre part est calculée comme <code>URSSAF total - part Aziza</code>.
+          <span id="urssaf-your-part"></span>
+        </p>
+        <button class="btn btn-primary btn-sm" id="save-settings-btn">Enregistrer les paramètres</button>
+        <div id="settings-status" class="status info mt-05"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // --------------- CONSTANTES ----------------
+
+    const MONTHS_FR = [
+      "Janvier","Février","Mars","Avril","Mai","Juin",
+      "Juillet","Août","Septembre","Octobre","Novembre","Décembre"
+    ];
+    const MONTHS_EN = [
+      "January","February","March","April","May","June",
+      "July","August","September","October","November","December"
+    ];
+
+    const QUARTERS = [
+      { id: "T1", label: "T1 – Janvier / Février / Mars", months: [0,1,2] },
+      { id: "T2", label: "T2 – Avril / Mai / Juin", months: [3,4,5] },
+      { id: "T3", label: "T3 – Juillet / Août / Septembre", months: [6,7,8] },
+      { id: "T4", label: "T4 – Octobre / Novembre / Décembre", months: [9,10,11] },
+    ];
+
+    const STORAGE_KEY = "mm_cleaning_app_state_v1";
+
+    // --------------- ÉTAT ----------------
+
+    let state = {
+      activeTab: "months",  // "months" | "quarters" | "settings"
+      activeYear: new Date().getFullYear(),
+      activeMonthIndex: new Date().getMonth(), // 0-11
+      activeQuarterIndex: 0,
+      settings: {
+        apiUrl: "",
+        hourlyRate: 29,
+        urssafTotalRate: 23.7,
+        urssafAzizaRate: 13.1,
+        apartments: [
+          {
+            code: "GRD",
+            name: "Grand Casimir",
+            hoursPerCleaning: 3,
+            cell: "I2"
+          },
+          {
+            code: "PRC",
+            name: "Petit Prince",
+            hoursPerCleaning: 2,
+            cell: "J2"
+          }
+        ]
+      },
+      frozenYears: {}, // { "2025": true }
+      // monthlyData[year][monthIndex] = { apartments: {code: {cleanings, hours, amount}}, totals: {...} }
+      monthlyData: {},
+      // monthPaid[year][monthIndex] = { paid: bool, date: "YYYY-MM-DD" }
+      monthPaid: {}
+    };
+
+    // --------------- UTILITAIRES ----------------
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          // merge minimalement pour éviter de casser en cas d’évolution
+          state = { ...state, ...parsed };
+          // merge settings
+          state.settings = { ...state.settings, ...(parsed.settings || {}) };
+        }
+      } catch (e) {
+        console.warn("Impossible de charger l'état depuis localStorage", e);
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function formatMoney(value) {
+      if (isNaN(value)) return "0,00 €";
+      return value.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+    }
+
+    function sum(values) {
+      return values.reduce((a,b) => a + (b || 0), 0);
+    }
+
+    function getYearMonthlyData(year) {
+      if (!state.monthlyData[year]) {
+        state.monthlyData[year] = {};
+      }
+      return state.monthlyData[year];
+    }
+
+    function getPaidInfo(year, monthIndex) {
+      if (!state.monthPaid[year]) {
+        state.monthPaid[year] = {};
+      }
+      if (!state.monthPaid[year][monthIndex]) {
+        state.monthPaid[year][monthIndex] = { paid: false, date: "" };
+      }
+      return state.monthPaid[year][monthIndex];
+    }
+
+    function ensureYearInSelect() {
+      const yearSelect = document.getElementById("year-select");
+      yearSelect.innerHTML = "";
+
+      // On propose l'année courante, l'année suivante et quelques années avant
+      const currentYear = new Date().getFullYear();
+      const years = [];
+      for (let y = currentYear - 3; y <= currentYear + 1; y++) {
+        years.push(y);
+      }
+
+      years.forEach(y => {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+      });
+
+      if (!years.includes(state.activeYear)) {
+        state.activeYear = currentYear;
+      }
+      yearSelect.value = state.activeYear;
+    }
+
+    function isYearFrozen(year) {
+      return !!state.frozenYears[year];
+    }
+
+    // Vérifie si on doit auto-geler une année précédente
+    function autoFreezeIfNeeded() {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const previousYear = currentYear - 1;
+
+      if (previousYear < 2000) return; // sécurité
+
+      if (isYearFrozen(previousYear)) return;
+
+      // On considère la date limite = 31/12 de l'année précédente à 20h
+      const freezeDeadline = new Date(previousYear, 11, 31, 20, 0, 0); // mois 11 = décembre
+      if (now > freezeDeadline) {
+        // On "gèle" l'année précédente automatiquement
+        freezeYear(previousYear, { silent: true });
+        const freezeStatus = document.getElementById("freeze-status");
+        if (freezeStatus) {
+          freezeStatus.textContent = `L'année ${previousYear} a été archivée automatiquement à la première ouverture.`;
+          freezeStatus.className = "status ok mt-05";
+        }
+      }
+    }
+
+    // --------------- CHARGEMENT DES DONNÉES ----------------
+
+    /**
+     * Appelle l'API (Apps Script par exemple) pour récupérer les nombres de ménages
+     * par mois et par appartement pour une année donnée, puis calcule heures & montants.
+     *
+     * Format JSON attendu (exemple) :
+     * {
+     *   "year": 2025,
+     *   "months": [
+     *     { "monthIndex": 0, "January": { "GRD": 4, "PRC": 5 } },
+     *     ...
+     *   ]
+     * }
+     *
+     * Mais pour simplifier, on va supposer :
+     * {
+     *   "year": 2025,
+     *   "months": [
+     *     { "name": "January", "GRD": 4, "PRC": 5 },
+     *     ...
+     *   ]
+     * }
+     */
+    async function fetchYearFromApi(year) {
+      const apiUrl = state.settings.apiUrl;
+      if (!apiUrl) {
+        throw new Error("Aucune URL API définie dans les paramètres.");
+      }
+      const url = apiUrl + (apiUrl.includes("?") ? "&" : "?") + "year=" + encodeURIComponent(year);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Erreur API : " + response.status);
+      }
+      const data = await response.json();
+      return data;
+    }
+
+    function computeMonthlyDataFromRaw(year, rawData) {
+      const monthly = getYearMonthlyData(year);
+      const apartments = state.settings.apartments;
+      const hourlyRate = state.settings.hourlyRate || 29;
+
+      // rawData.months : tableau de 12 objets { name: "January", GRD: n, PRC: n, ... }
+      if (!rawData || !Array.isArray(rawData.months)) {
+        console.warn("Données API inattendues pour l'année", year, rawData);
+        return;
+      }
+
+      rawData.months.forEach((m) => {
+        const name = m.name;
+        const monthIndex = MONTHS_EN.indexOf(name);
+        if (monthIndex === -1) return;
+
+        const monthInfo = { apartments: {}, totals: { cleanings: 0, hours: 0, amount: 0 } };
+
+        apartments.forEach(ap => {
+          const nbCleanings = Number(m[ap.code] || 0);
+          const hours = nbCleanings * ap.hoursPerCleaning;
+          const amount = hours * hourlyRate;
+
+          monthInfo.apartments[ap.code] = {
+            name: ap.name,
+            cleanings: nbCleanings,
+            hours,
+            amount
+          };
+
+          monthInfo.totals.cleanings += nbCleanings;
+          monthInfo.totals.hours += hours;
+          monthInfo.totals.amount += amount;
+        });
+
+        monthly[monthIndex] = monthInfo;
+      });
+
+      state.monthlyData[year] = monthly;
+      saveState();
+    }
+
+    async function loadYearData(year, options = { force: false }) {
+      // Si année gelée, on ne recharge jamais depuis l'API
+      if (isYearFrozen(year) && !options.force) {
+        return;
+      }
+      // Si on a déjà des données et pas force, on ne recharge pas
+      if (state.monthlyData[year] && !options.force) {
+        return;
+      }
+
+      const data = await fetchYearFromApi(year);
+      computeMonthlyDataFromRaw(year, data);
+    }
+
+    // --------------- GEL D'ANNÉE ----------------
+
+    function freezeYear(year, opts = { silent: false }) {
+      // Ici on se contente de marquer l'année comme gelée.
+      // Les données monthlyData[year] déjà présentes restent en localStorage.
+      state.frozenYears[year] = true;
+      saveState();
+
+      const yearStatus = document.getElementById("year-status");
+      if (yearStatus && state.activeYear === year) {
+        yearStatus.textContent = `Année ${year} gelée`;
+        yearStatus.className = "badge accent";
+      }
+
+      if (!opts.silent) {
+        const freezeStatus = document.getElementById("freeze-status");
+        if (freezeStatus) {
+          freezeStatus.textContent = `L'année ${year} a été gelée. Les données actuelles sont maintenant figées localement.`;
+          freezeStatus.className = "status ok mt-05";
+        }
+      }
+    }
+
+    // --------------- RENDU UI ----------------
+
+    function renderTabs() {
+      document.getElementById("tab-months").classList.toggle("active", state.activeTab === "months");
+      document.getElementById("tab-quarters").classList.toggle("active", state.activeTab === "quarters");
+      document.getElementById("tab-settings").classList.toggle("active", state.activeTab === "settings");
+
+      document.getElementById("view-months").style.display = state.activeTab === "months" ? "" : "none";
+      document.getElementById("view-quarters").style.display = state.activeTab === "quarters" ? "" : "none";
+      document.getElementById("view-settings").style.display = state.activeTab === "settings" ? "" : "none";
+    }
+
+    function renderYearStatus() {
+      const span = document.getElementById("year-status");
+      const year = state.activeYear;
+
+      if (isYearFrozen(year)) {
+        span.textContent = `Année ${year} gelée`;
+        span.className = "badge accent";
+      } else {
+        span.textContent = `Année ${year} en cours`;
+        span.className = "badge";
+      }
+    }
+
+    function renderMonthTabs() {
+      const container = document.getElementById("month-tabs");
+      container.innerHTML = "";
+      MONTHS_FR.forEach((name, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = name;
+        if (idx === state.activeMonthIndex) {
+          btn.classList.add("active");
+        }
+        btn.addEventListener("click", () => {
+          state.activeMonthIndex = idx;
+          saveState();
+          renderMonthTabs();
+          renderMonthsView();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function renderQuarterTabs() {
+      const container = document.getElementById("quarter-tabs");
+      container.innerHTML = "";
+      QUARTERS.forEach((q, idx) => {
+        const btn = document.createElement("button");
+        btn.textContent = q.id;
+        if (idx === state.activeQuarterIndex) {
+          btn.classList.add("active");
+        }
+        btn.addEventListener("click", () => {
+          state.activeQuarterIndex = idx;
+          saveState();
+          renderQuartersView();
+        });
+        container.appendChild(btn);
+      });
+    }
+
+    function renderMonthsView() {
+      const year = state.activeYear;
+      const monthIndex = state.activeMonthIndex;
+      const monthNameFr = MONTHS_FR[monthIndex];
+      const monthNameEn = MONTHS_EN[monthIndex];
+
+      document.getElementById("month-title").textContent = `${monthNameFr} ${year}`;
+      document.getElementById("month-subtitle").textContent = `Onglet Google Sheets : "${monthNameEn}"`;
+
+      const monthly = getYearMonthlyData(year)[monthIndex];
+
+      // Détail par appartement
+      const apartmentsContainer = document.getElementById("month-apartments-table");
+      if (!monthly) {
+        apartmentsContainer.innerHTML = `<p class="muted">Aucune donnée disponible pour ce mois. Assurez-vous que l'API renvoie bien les informations.</p>`;
+      } else {
+        let html = `<table>
+          <thead>
+            <tr>
+              <th>Appartement</th>
+              <th>Ménages</th>
+              <th>Heures</th>
+              <th>Montant</th>
+            </tr>
+          </thead>
+          <tbody>`;
+        state.settings.apartments.forEach(ap => {
+          const info = monthly.apartments[ap.code] || { cleanings: 0, hours: 0, amount: 0 };
+          html += `<tr>
+            <td>${ap.name} (${ap.code})</td>
+            <td>${info.cleanings}</td>
+            <td>${info.hours.toFixed(1)}</td>
+            <td>${formatMoney(info.amount)}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        apartmentsContainer.innerHTML = html;
+      }
+
+      // Totaux du mois
+      const summaryContainer = document.getElementById("month-summary");
+      summaryContainer.innerHTML = "";
+      const totals = monthly ? monthly.totals : { cleanings: 0, hours: 0, amount: 0 };
+
+      const items = [
+        { label: "Total ménages", value: totals.cleanings },
+        { label: "Total heures", value: totals.hours.toFixed(1) },
+        { label: "Montant dû", value: formatMoney(totals.amount) },
+      ];
+
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "highlight-card";
+        div.innerHTML = `
+          <div class="highlight-number">${item.value}</div>
+          <div class="highlight-label">${item.label}</div>
+        `;
+        summaryContainer.appendChild(div);
+      });
+
+      // Paiement
+      const paidInfo = getPaidInfo(year, monthIndex);
+      const paidCheckbox = document.getElementById("month-paid-checkbox");
+      const paidDateInput = document.getElementById("month-paid-date");
+      paidCheckbox.checked = paidInfo.paid;
+      paidDateInput.value = paidInfo.date || "";
+
+      paidCheckbox.onchange = () => {
+        const info = getPaidInfo(year, monthIndex);
+        info.paid = paidCheckbox.checked;
+        // Si on coche comme payé et qu'il n'y a pas encore de date, on met aujourd'hui.
+        if (info.paid && !info.date) {
+          const today = new Date();
+          info.date = today.toISOString().slice(0,10);
+          paidDateInput.value = info.date;
+        }
+        saveState();
+      };
+      paidDateInput.onchange = () => {
+        const info = getPaidInfo(year, monthIndex);
+        info.date = paidDateInput.value;
+        if (info.date && !info.paid) {
+          info.paid = true;
+          paidCheckbox.checked = true;
+        }
+        saveState();
+      };
+    }
+
+    function renderQuartersView() {
+      const year = state.activeYear;
+      const quarter = QUARTERS[state.activeQuarterIndex];
+
+      document.getElementById("quarter-title").textContent = `${quarter.id} ${year}`;
+      document.getElementById("quarter-subtitle").textContent = quarter.label;
+
+      // Détail du trimestre (par mois & appart)
+      const detailContainer = document.getElementById("quarter-detail-table");
+      const monthlyYear = getYearMonthlyData(year);
+
+      let rows = [];
+      quarter.months.forEach(mIndex => {
+        const monthLabel = MONTHS_FR[mIndex];
+        const monthData = monthlyYear[mIndex];
+        state.settings.apartments.forEach(ap => {
+          const info = monthData ? (monthData.apartments[ap.code] || { cleanings: 0, hours: 0, amount: 0 }) : { cleanings: 0, hours: 0, amount: 0 };
+          rows.push({
+            monthIndex: mIndex,
+            monthLabel,
+            apartment: ap.name + " (" + ap.code + ")",
+            cleanings: info.cleanings,
+            hours: info.hours,
+            amount: info.amount
+          });
+        });
+      });
+
+      if (!rows.length) {
+        detailContainer.innerHTML = `<p class="muted">Aucune donnée disponible pour ce trimestre.</p>`;
+      } else {
+        let html = `<table>
+          <thead>
+            <tr>
+              <th>Mois</th>
+              <th>Appartement</th>
+              <th>Ménages</th>
+              <th>Heures</th>
+              <th>Montant</th>
+            </tr>
+          </thead>
+          <tbody>`;
+        rows.forEach(r => {
+          html += `<tr>
+            <td>${r.monthLabel}</td>
+            <td>${r.apartment}</td>
+            <td>${r.cleanings}</td>
+            <td>${r.hours.toFixed(1)}</td>
+            <td>${formatMoney(r.amount)}</td>
+          </tr>`;
+        });
+        html += `</tbody></table>`;
+        detailContainer.innerHTML = html;
+      }
+
+      // Synthèse trimestre
+      const summaryContainer = document.getElementById("quarter-summary");
+      summaryContainer.innerHTML = "";
+
+      let totalCleanings = 0;
+      let totalHours = 0;
+      let totalAmount = 0;
+
+      quarter.months.forEach(mIndex => {
+        const monthData = monthlyYear[mIndex];
+        if (monthData && monthData.totals) {
+          totalCleanings += monthData.totals.cleanings || 0;
+          totalHours += monthData.totals.hours || 0;
+          totalAmount += monthData.totals.amount || 0;
+        }
+      });
+
+      const items = [
+        { label: "Total ménages (trimestre)", value: totalCleanings },
+        { label: "Total heures (trimestre)", value: totalHours.toFixed(1) },
+        { label: "CA trimestriel", value: formatMoney(totalAmount) },
+      ];
+
+      items.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "highlight-card";
+        div.innerHTML = `
+          <div class="highlight-number">${item.value}</div>
+          <div class="highlight-label">${item.label}</div>
+        `;
+        summaryContainer.appendChild(div);
+      });
+
+      // URSSAF
+      const urssafContainer = document.getElementById("quarter-urssaf");
+      const totalRate = Number(state.settings.urssafTotalRate || 0);
+      const azizaRate = Number(state.settings.urssafAzizaRate || 0);
+      const yourRate = totalRate - azizaRate;
+
+      const cotisationTotale = totalAmount * (totalRate / 100);
+      const partAziza = totalAmount * (azizaRate / 100);
+      const partToi = totalAmount * (yourRate / 100);
+
+      urssafContainer.innerHTML = `
+        <div class="highlights">
+          <div class="highlight-card">
+            <div class="highlight-number">${formatMoney(totalAmount)}</div>
+            <div class="highlight-label">CA à déclarer</div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-number">${formatMoney(cotisationTotale)}</div>
+            <div class="highlight-label">Cotisations URSSAF (${totalRate.toFixed(1)} %)</div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-number">${formatMoney(partAziza)}</div>
+            <div class="highlight-label">Part Aziza (${azizaRate.toFixed(1)} %)</div>
+          </div>
+          <div class="highlight-card">
+            <div class="highlight-number">${formatMoney(partToi)}</div>
+            <div class="highlight-label">Ta part (${yourRate.toFixed(1)} %)</div>
+          </div>
+        </div>
+        <p class="muted mt-05">
+          Aziza paie ${azizaRate.toFixed(1)} % de son chiffre d'affaires, tu prends en charge la différence,
+          soit ${yourRate.toFixed(1)} % (paramétrable dans les réglages).
+        </p>
+      `;
+    }
+
+    function renderSettingsView() {
+      // Source / API
+      document.getElementById("api-url").value = state.settings.apiUrl || "";
+
+      // Appartements
+      const apContainer = document.getElementById("apartments-settings");
+      apContainer.innerHTML = "";
+      state.settings.apartments.forEach((ap, idx) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.style.marginBottom = "0.5rem";
+        div.innerHTML = `
+          <div class="section-title">Appartement ${idx + 1}</div>
+          <div class="input-row">
+            <label>Nom affiché</label>
+            <input type="text" data-ap-index="${idx}" data-field="name" value="${ap.name}" />
+          </div>
+          <div class="input-row">
+            <label>Code</label>
+            <input type="text" data-ap-index="${idx}" data-field="code" value="${ap.code}" />
+          </div>
+          <div class="input-row">
+            <label>Heures par ménage</label>
+            <input type="number" step="0.1" data-ap-index="${idx}" data-field="hoursPerCleaning" value="${ap.hoursPerCleaning}" />
+          </div>
+          <div class="input-row">
+            <label>Cellule (Google Sheets)</label>
+            <input type="text" data-ap-index="${idx}" data-field="cell" value="${ap.cell}" />
+          </div>
+        `;
+        apContainer.appendChild(div);
+      });
+
+      // Taux URSSAF & tarif horaire
+      document.getElementById("hourly-rate").value = state.settings.hourlyRate;
+      document.getElementById("urssaf-total-rate").value = state.settings.urssafTotalRate;
+      document.getElementById("urssaf-aziza-rate").value = state.settings.urssafAzizaRate;
+      updateUrssafYourPartDisplay();
+    }
+
+    function updateUrssafYourPartDisplay() {
+      const totalRate = Number(document.getElementById("urssaf-total-rate").value || 0);
+      const azizaRate = Number(document.getElementById("urssaf-aziza-rate").value || 0);
+      const yourRate = totalRate - azizaRate;
+      document.getElementById("urssaf-your-part").textContent =
+        ` Votre part actuelle serait de ${yourRate.toFixed(1)} %.`;
+    }
+
+    // --------------- INIT & ÉVÉNEMENTS ----------------
+
+    async function init() {
+      loadState();
+      ensureYearInSelect();
+      autoFreezeIfNeeded();
+      renderTabs();
+      renderYearStatus();
+      renderMonthTabs();
+      renderQuarterTabs();
+      renderSettingsView();
+
+      // Charge les données pour l’année active (si possible)
+      try {
+        await loadYearData(state.activeYear);
+      } catch (e) {
+        console.warn("Impossible de charger les données pour l'année active :", e);
+      }
+
+      renderMonthsView();
+      renderQuartersView();
+
+      // Événements tabs
+      document.getElementById("tab-months").addEventListener("click", () => {
+        state.activeTab = "months";
+        saveState();
+        renderTabs();
+      });
+      document.getElementById("tab-quarters").addEventListener("click", () => {
+        state.activeTab = "quarters";
+        saveState();
+        renderTabs();
+      });
+      document.getElementById("tab-settings").addEventListener("click", () => {
+        state.activeTab = "settings";
+        saveState();
+        renderTabs();
+        renderSettingsView();
+      });
+
+      // Sélection d'année
+      document.getElementById("year-select").addEventListener("change", async (e) => {
+        const newYear = Number(e.target.value);
+        state.activeYear = newYear;
+        saveState();
+        renderYearStatus();
+        try {
+          await loadYearData(newYear);
+        } catch (err) {
+          console.warn("Erreur de chargement pour l'année", newYear, err);
+        }
+        renderMonthsView();
+        renderQuartersView();
+      });
+
+      // Geler l'année (bouton en haut)
+      document.getElementById("freeze-year-btn").addEventListener("click", () => {
+        freezeYear(state.activeYear);
+      });
+      // Geler depuis les paramètres
+      document.getElementById("freeze-year-btn-settings").addEventListener("click", () => {
+        freezeYear(state.activeYear);
+      });
+
+      // Test API
+      document.getElementById("test-api-btn").addEventListener("click", async () => {
+        const apiStatus = document.getElementById("api-status");
+        apiStatus.textContent = "Test de connexion en cours...";
+        apiStatus.className = "status info";
+
+        const url = document.getElementById("api-url").value.trim();
+        if (!url) {
+          apiStatus.textContent = "Veuillez renseigner une URL d'API.";
+          apiStatus.className = "status error";
+          return;
+        }
+
+        state.settings.apiUrl = url;
+        saveState();
+
+        try {
+          const year = state.activeYear;
+          await loadYearData(year, { force: true });
+          apiStatus.textContent = `Connexion OK. Les données ${year} ont été mises à jour.`;
+          apiStatus.className = "status ok";
+          renderMonthsView();
+          renderQuartersView();
+        } catch (e) {
+          apiStatus.textContent = "Erreur lors de l'appel API : " + e.message;
+          apiStatus.className = "status error";
+        }
+      });
+
+      // Sauvegarde des paramètres / appartements / taux
+      document.getElementById("save-settings-btn").addEventListener("click", () => {
+        // URL
+        state.settings.apiUrl = document.getElementById("api-url").value.trim();
+
+        // Taux
+        const hourlyRate = Number(document.getElementById("hourly-rate").value || 0);
+        const urssafTotalRate = Number(document.getElementById("urssaf-total-rate").value || 0);
+        const urssafAzizaRate = Number(document.getElementById("urssaf-aziza-rate").value || 0);
+
+        state.settings.hourlyRate = hourlyRate;
+        state.settings.urssafTotalRate = urssafTotalRate;
+        state.settings.urssafAzizaRate = urssafAzizaRate;
+
+        // Appartements
+        const apInputs = document.querySelectorAll("#apartments-settings input");
+        apInputs.forEach(input => {
+          const idx = Number(input.getAttribute("data-ap-index"));
+          const field = input.getAttribute("data-field");
+          if (!state.settings.apartments[idx]) return;
+          let val = input.value;
+          if (field === "hoursPerCleaning") {
+            val = Number(val || 0);
+          }
+          state.settings.apartments[idx][field] = val;
+        });
+
+        saveState();
+        updateUrssafYourPartDisplay();
+        document.getElementById("settings-status").textContent = "Paramètres enregistrés.";
+        document.getElementById("settings-status").className = "status ok mt-05";
+
+        // Recalcul des montants (à partir des données brutes déjà stockées)
+        // Ici on suppose que l'API renvoie toujours le nombre de ménages brut,
+        // donc pour que les changements de taux se reflètent, il faudrait recharger depuis l'API.
+        // Pour simplifier : on indique juste que les nouveaux taux s'appliqueront aux prochains rechargements.
+      });
+
+      document.getElementById("urssaf-total-rate").addEventListener("input", updateUrssafYourPartDisplay);
+      document.getElementById("urssaf-aziza-rate").addEventListener("input", updateUrssafYourPartDisplay);
+
+      // Mise à jour en direct des paramètres appartements (sans attendre "Enregistrer")
+      document.getElementById("apartments-settings").addEventListener("input", (e) => {
+        const input = e.target;
+        if (!input.hasAttribute("data-ap-index")) return;
+        const idx = Number(input.getAttribute("data-ap-index"));
+        const field = input.getAttribute("data-field");
+        let val = input.value;
+        if (field === "hoursPerCleaning") {
+          val = Number(val || 0);
+        }
+        state.settings.apartments[idx][field] = val;
+        saveState();
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      init().catch(err => console.error(err));
+    });
+
+    // --------------- SERVICE WORKER PWA ----------------
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(err => {
+        console.warn("Service worker non enregistré:", err);
+      });
+    }
+  </script>
+</body>
+</html>
