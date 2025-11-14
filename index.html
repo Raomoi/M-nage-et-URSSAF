@@ -542,23 +542,35 @@
     }
 
     function setManualHours(year, monthIndex, code, hours) {
-      if (!state.manualHours[year]) state.manualHours[year] = {};
-      if (!state.manualHours[year][monthIndex]) state.manualHours[year][monthIndex] = {};
-      state.manualHours[year][monthIndex][code] = hours;
-      saveState();
+  if (!state.manualHours[year]) state.manualHours[year] = {};
+  if (!state.manualHours[year][monthIndex]) state.manualHours[year][monthIndex] = {};
+  state.manualHours[year][monthIndex][code] = hours;
+  saveState();
 
-      const apiUrl = state.settings.apiUrl;
-      if (!apiUrl) return;
-      try {
-        fetch(apiUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ year, monthIndex, code, hours })
-        }).catch(err => console.warn("Erreur POST override:", err));
-      } catch (err) {
-        console.warn("Exception POST override:", err);
-      }
-    }
+  const apiUrl = state.settings.apiUrl;
+  if (!apiUrl) return;
+
+  try {
+    const body = new URLSearchParams({
+      year: String(year),
+      monthIndex: String(monthIndex),
+      code: String(code),
+      hours: String(hours)
+    }).toString();
+
+    fetch(apiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body
+    }).catch(err => {
+      console.warn("Erreur POST override:", err);
+    });
+  } catch (err) {
+    console.warn("Exception POST override:", err);
+  }
+}
 
     function getEffectiveApartmentMonth(year, monthIndex, code) {
       const monthlyYear = getYearMonthlyData(year);
