@@ -1,45 +1,113 @@
-const CACHE_NAME = "mm-cleaning-v7";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest",
-  "./sw.js",
-  "./icon-192.png",
-  "./icon-512.png",
-  "./logo-maisonmoisan.jpg"
+// Version du cache – incrémente-la à chaque version déployée
+const CACHE_VERSION = 'mm-cleaning-v8';
+const CACHE_NAME = CACHE_VERSION;
+
+// Fichiers à pré-cacher (ajoute-en si besoin)
+const PRECACHE_URLS = [
+  './',
+  './index.html',
+  './manifest.webmanifest',
+  './sw.js',
+  './icon-192.png',
+  './icon-512.png',
+  './logo-maisonmoisan.jpg'
 ];
 
-self.addEventListener("install", (event) => {
+// Installation : on pré-charge les ressources essentielles
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE_URLS))
+      .then(() => self.skipWaiting())
+      .catch(err => {
+        console.warn('[SW] Erreur pendant install:', err);
+      })
   );
 });
 
-self.addEventListener("activate", (event) => {
+// Activation : on supprime les vieux caches et on prend la main tout de suite
+self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    )
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      ))
+      .then(() => self.clients.claim())
+      .catch(err => {
+        console.warn('[SW] Erreur pendant activate:', err);
+      })
   );
 });
 
-self.addEventListener("fetch", (event) => {
+// Stratégie de fetch
+self.addEventListener('fetch', event => {
   const request = event.request;
 
-  // Stratégie "network first, fallback cache" pour les appels API
-  if (request.url.includes("/exec")) {
+  // On ne gère que les requêtes GET
+  if (request.method !== 'GET') {
+    return;
+  }
+
+  const url = new URL(request.url);
+
+  // 1) On NE TOUCHE PAS aux appels Apps Script (Google)
+  // → le navigateur les gère directement, pas de cache, pas de CORS dans le SW
+  if (url.origin === 'https://script.google.com') {
+    // Pas de event.respondWith -> le navigateur fait sa vie
+    return;
+  }
+
+  // 2) On ne gère que les requêtes vers le même domaine que la PWA (GitHub Pages)
+  if (url.origin !== self.location.origin) {
+    // Laisser passer les autres (polices, CDN, etc.)
+    return;
+  }
+
+  // 3) Pour les navigations / HTML : stratégie "network first"
+  if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(request).catch(() => caches.match(request))
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, copy);
+          });
+          return response;
+        })
+        .catch(() => {
+          // Si offline ou erreur réseau → on tente le cache
+          return caches.match(request).then(cached => {
+            if (cached) return cached;
+            // fallback sur la home si disponible
+            return caches.match('./');
+          });
+        })
     );
     return;
   }
 
-  // Pour les assets statiques : "cache first"
+  // 4) Pour les autres ressources (JS, CSS, images…) : stratégie "cache first"
   event.respondWith(
-    caches.match(request).then((cached) => cached || fetch(request))
+    caches.match(request).then(cached => {
+      if (cached) {
+        return cached;
+      }
+      return fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, copy);
+          });
+          return response;
+        })
+        .catch(err => {
+          console.warn('[SW] Erreur fetch ressource:', err);
+          return cached || Promise.reject(err);
+        });
+    })
   );
 });
